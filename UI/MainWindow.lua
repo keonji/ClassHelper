@@ -66,11 +66,18 @@ function MainWindow:Create()
     self.tabs = {}
     for index = 1, #TABS do
         local tab = TABS[index]
-        self.tabs[#self.tabs + 1] = widgets.Tab(frame, tab.key, tab.label)
+        local widget = widgets.Tab(frame, tab.key, tab.label, function(key)
+            self:SelectTab(key)
+        end)
+        if widget then
+            widget.frame:SetPoint("BOTTOMLEFT", 18 + ((index - 1) * 170), 18)
+            self.tabs[#self.tabs + 1] = widget
+        end
     end
-    self.selectedTab = "gear"
 
     self:RestorePosition()
+
+    self:SelectTab("gear")
 
     ns.Compat:AddEscapeFrame("ClassHelperMainWindow")
 
@@ -134,6 +141,8 @@ function MainWindow:SelectTab(key)
 
     if key == "gear" then
         ns.GearSection:Render(self, view)
+    else
+        ns.GearSection:Clear()
     end
 
     return true

@@ -77,14 +77,6 @@ function RequestQueue.New(options)
     function queue:Update(elapsed)
         self.elapsed = self.elapsed + (elapsed or 0)
 
-        for index = #self.pending, 1, -1 do
-            local job = self.pending[index]
-            if self.elapsed - job.created >= timeout then
-                if self.keys[job.key] then finish(job, "failed", nil, "timeout") end
-                table.remove(self.pending, index)
-            end
-        end
-
         while self.elapsed >= self.nextDispatchAt do
             if #self.active >= maxActive then
                 self.nextDispatchAt = self.elapsed

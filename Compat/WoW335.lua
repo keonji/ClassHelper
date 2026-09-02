@@ -18,11 +18,18 @@ function Compat:GetUnitClassToken(unit)
     end
 end
 
+function Compat:GetUnitRaceToken(unit)
+    if UnitRace then
+        local _, english = UnitRace(unit or "player")
+        return english
+    end
+end
+
 function Compat:GetTalentTreePoints()
     local points = {}
     if not GetNumTalentTabs then return points end
     for tab = 1, GetNumTalentTabs(false, false) do
-        local _, _, _, spent = GetTalentTabInfo(tab, false, false, GetActiveTalentGroup())
+        local _, _, spent = GetTalentTabInfo(tab, false, false, GetActiveTalentGroup())
         points[tab] = spent or 0
     end
     return points
@@ -44,12 +51,18 @@ function Compat:GetItemInfo(itemID)
 end
 
 function Compat:QueryItem(itemID)
-    local tooltip = ClassHelperQueryTooltip
-    if tooltip and tooltip.SetHyperlink then
-        tooltip:SetHyperlink(("item:%d:0:0:0:0:0:0:0:0"):format(itemID))
-        return true
+    if not self.queryTooltip then
+        self.queryTooltip = self:CreateFrame("GameTooltip", "ClassHelperQueryTooltip", UIParent, "GameTooltipTemplate")
+        if self.queryTooltip and self.queryTooltip.SetOwner then
+            self.queryTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        end
     end
-    return false
+    local tooltip = self.queryTooltip
+    if not tooltip or not tooltip.SetHyperlink then
+        return false
+    end
+    local ok = pcall(tooltip.SetHyperlink, tooltip, ("item:%d:0:0:0:0:0:0:0:0"):format(itemID))
+    return ok
 end
 
 function Compat:GetTime()
@@ -57,9 +70,9 @@ function Compat:GetTime()
     return 0
 end
 
-function Compat:CreateFrame(objectType, name, parent)
+function Compat:CreateFrame(objectType, name, parent, template)
     if not CreateFrame then return nil end
-    return CreateFrame(objectType, name, parent)
+    return CreateFrame(objectType, name, parent, template)
 end
 
 function Compat:CreateTexture(parent, layer)
@@ -86,4 +99,16 @@ function Compat:HandleModifiedItemClick(link)
     if HandleModifiedItemClick then
         return HandleModifiedItemClick(link)
     end
+end
+
+function Compat:ShowItemTooltip(owner, link)
+    if not GameTooltip or not link then return false end
+    GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+    GameTooltip:SetHyperlink(link)
+    GameTooltip:Show()
+    return true
+end
+
+function Compat:HideItemTooltip()
+    if GameTooltip then GameTooltip:Hide() end
 end

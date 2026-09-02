@@ -14,6 +14,7 @@ local ruRU = {
     BATCH_PROGRESS = "Загружено %d / %d",
     BATCH_PROGRESS_FAILED = "Загружено %d / %d, с ошибкой %d",
     BATCH_TOO_LARGE = "Слишком много предметов; запросите их по одному",
+    BATCH_REQUEST = "Запросить данные с сервера для всех предметов",
 
     TAB_GUIDE = "Руководство",
     TAB_ENCHANTMENTS = "Чары и камни",

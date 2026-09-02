@@ -18,6 +18,7 @@ local enUS = {
     BATCH_PROGRESS = "Loaded %d / %d",
     BATCH_PROGRESS_FAILED = "Loaded %d / %d, failed %d",
     BATCH_TOO_LARGE = "Too many items; request them individually",
+    BATCH_REQUEST = "Request server data for all items",
 
     TAB_GUIDE = "Guide",
     TAB_ENCHANTMENTS = "Enchants & Gems",

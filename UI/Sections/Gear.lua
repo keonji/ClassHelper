@@ -29,6 +29,7 @@ function GearSection:Clear()
         end
     end
     self.rows = {}
+    if self.batchButton then self.batchButton:Hide() end
 end
 
 function GearSection:Render(window, view)
@@ -46,10 +47,23 @@ function GearSection:Render(window, view)
     local gear = guide.sections and guide.sections.gear
     if not gear or not gear.items then return end
 
+    if not self.batchButton then
+        self.batchButton = ns.Widgets.Button(self.container, "ClassHelperGearBatchButton",
+            ns.L:Get("BATCH_REQUEST"), function() self:ClickBatch() end)
+        if self.batchButton then
+            self.batchButton:SetSize(360, 28)
+            self.batchButton:SetPoint("TOPRIGHT", -16, -12)
+        end
+    else
+        self.batchButton:SetParent(self.container)
+        self.batchButton:Show()
+    end
+
     for index = 1, #gear.items do
         local data = gear.items[index]
         local row = ns.ItemRow.Create(self.container, self.resolver, view)
         if row then
+            row.frame:SetPoint("TOPLEFT", 16, -44 - ((index - 1) * 28))
             row:Bind(data.itemID, data, view)
             self.rows[#self.rows + 1] = row
         end

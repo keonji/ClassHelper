@@ -27,7 +27,7 @@ function Widgets.Fill(parent, layer)
     local texture = compat():CreateTexture(parent, layer)
     if texture then
         texture:SetAllPoints()
-        texture:SetColorTexture(0, 0, 0, 0.5)
+        texture:SetTexture(0, 0, 0, 0.5)
         texture:Show()
     end
     return texture
@@ -70,14 +70,35 @@ function Widgets.StatusStrip(parent)
     return strip
 end
 
-function Widgets.Tab(parent, key, labelText)
-    local tab = { key = key, label = labelText }
-    tab.background = compat():CreateTexture(parent, "BACKGROUND")
+function Widgets.Tab(parent, key, labelText, onClick)
+    local frame = ns:CreateUIFrame("ClassHelperTab" .. key, parent, "Button")
+    if not frame then return nil end
+    frame:SetSize(150, 26)
+    frame:EnableMouse(true)
+    frame:RegisterForClicks("LeftButtonUp")
+    frame:SetScript("OnClick", function()
+        if onClick then onClick(key) end
+    end)
+
+    local tab = { key = key, label = labelText, frame = frame }
+    tab.background = compat():CreateTexture(frame, "BACKGROUND")
     if tab.background then
-        tab.background:SetSize(150, 26)
-        tab.background:SetColorTexture(0.13, 0.12, 0.10, 0.9)
+        tab.background:SetAllPoints()
+        tab.background:SetTexture(0.13, 0.12, 0.10, 0.9)
         tab.background:Show()
     end
-    tab.labelWidget = Widgets.Label(parent, labelText, theme().Fonts.header)
+    tab.labelWidget = Widgets.Label(frame, labelText, theme().Fonts.header)
+    if tab.labelWidget then tab.labelWidget:SetPoint("CENTER") end
     return tab
+end
+
+function Widgets.Button(parent, name, labelText, onClick)
+    local frame = ns:CreateUIFrame(name, parent, "Button")
+    if not frame then return nil end
+    frame:EnableMouse(true)
+    frame:RegisterForClicks("LeftButtonUp")
+    frame:SetScript("OnClick", onClick)
+    frame.labelWidget = Widgets.Label(frame, labelText, theme().Fonts.header)
+    if frame.labelWidget then frame.labelWidget:SetPoint("CENTER") end
+    return frame
 end

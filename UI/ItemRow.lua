@@ -34,9 +34,11 @@ end
 
 function ItemRow.Create(parent, resolver, view)
     if not parent then return nil end
-    local frame = ns:CreateUIFrame("ClassHelperItemRow", parent)
+    local frame = ns:CreateUIFrame(nil, parent, "Button")
     if not frame then return nil end
     frame:SetSize(820, 24)
+    frame:EnableMouse(true)
+    frame:RegisterForClicks("LeftButtonUp")
 
     local row = setmetatable({
         frame = frame,
@@ -55,6 +57,15 @@ function ItemRow.Create(parent, resolver, view)
 
     frame:SetScript("OnClick", function()
         row:Click()
+    end)
+    frame:SetScript("OnEnter", function()
+        local snapshot = row.snapshot
+        if snapshot and snapshot.state == "loaded" and snapshot.link then
+            ns.Compat:ShowItemTooltip(frame, snapshot.link)
+        end
+    end)
+    frame:SetScript("OnLeave", function()
+        ns.Compat:HideItemTooltip()
     end)
 
     return row
@@ -79,6 +90,7 @@ function Row:Render(snapshot)
     if view and view.controller and not view.controller:IsCurrent(view.generation) then return end
 
     local state = snapshot and snapshot.state or "idle"
+    self.snapshot = snapshot
     if state == "loaded" and snapshot.name then
         self.nameText:SetText(snapshot.name)
         self.stateText:SetText("")

@@ -9,11 +9,11 @@ function ns:GetUIParent()
     return UIParent
 end
 
-function ns:CreateUIFrame(name, parent)
+function ns:CreateUIFrame(name, parent, objectType, template)
     local compat = self.Compat
     if not compat then return nil end
     parent = parent or self:GetUIParent()
-    local frame = compat:CreateFrame("Frame", name, parent)
+    local frame = compat:CreateFrame(objectType or "Frame", name, parent, template)
     if frame then
         self.createdFrames[#self.createdFrames + 1] = frame
     end

@@ -30,6 +30,7 @@ local function buildDatabase(saved)
 end
 
 local database = buildDatabase(ClassHelperDB)
+ClassHelperDB = database
 
 function Config:Has(key)
     return DEFAULTS[key] ~= nil

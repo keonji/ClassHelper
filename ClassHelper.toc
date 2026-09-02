@@ -11,6 +11,8 @@ Core/Config.lua
 Compat/WoW335.lua
 Services/RequestQueue.lua
 Services/ItemResolver.lua
+Services/PlayerContext.lua
+Services/SpellResolver.lua
 Locales/enUS.lua
 Locales/ruRU.lua
 Data/Classes.lua
@@ -25,3 +27,4 @@ UI/Widgets.lua
 UI/ItemRow.lua
 UI/Sections/Gear.lua
 UI/MainWindow.lua
+Core/Lifecycle.lua
