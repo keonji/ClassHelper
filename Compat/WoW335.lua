@@ -35,3 +35,19 @@ function Compat:GetSpellInfo(spellID)
         return { name = name, icon = icon, level = level }
     end
 end
+
+function Compat:GetItemInfo(itemID)
+    if not GetItemInfo then return end
+    local name, link, quality, itemLevel, minLevel, itemType, itemSubType, stackCount, equipLocation, texture = GetItemInfo(itemID)
+    if not name then return end
+    return name, link, quality, itemLevel, minLevel, itemType, itemSubType, stackCount, equipLocation, texture
+end
+
+function Compat:QueryItem(itemID)
+    local tooltip = ClassHelperQueryTooltip
+    if tooltip and tooltip.SetHyperlink then
+        tooltip:SetHyperlink(("item:%d:0:0:0:0:0:0:0:0"):format(itemID))
+        return true
+    end
+    return false
+end

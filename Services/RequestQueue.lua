@@ -108,15 +108,19 @@ function RequestQueue.New(options)
             self.nextDispatchAt = self.nextDispatchAt + dispatchInterval
             table.remove(self.pending, jobIndex)
 
+            local immediate
             if job.handlers.dispatch then
-                local ok, err = pcall(job.handlers.dispatch)
+                local ok, done = pcall(job.handlers.dispatch)
                 if not ok then
-                    if onError then pcall(onError, "dispatch_error: " .. tostring(err)) end
-                    drop(job)
+                    if onError then pcall(onError, "dispatch_error: " .. tostring(done)) end
+                    finish(job, "failed", nil, "dispatch_error")
+                    immediate = true
+                elseif done then
+                    immediate = true
                 end
             end
 
-            if self.keys[job.key] then
+            if not immediate and self.keys[job.key] then
                 job.started = self.elapsed
                 job.nextCheckAt = self.elapsed + pollInterval
                 job.checks = 0

@@ -10,6 +10,7 @@ Core/Events.lua
 Core/Config.lua
 Compat/WoW335.lua
 Services/RequestQueue.lua
+Services/ItemResolver.lua
 Locales/enUS.lua
 Locales/ruRU.lua
 Data/Classes.lua
