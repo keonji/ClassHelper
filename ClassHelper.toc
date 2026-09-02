@@ -6,6 +6,8 @@
 
 Core/Bootstrap.lua
 Core/Registry.lua
+Core/Events.lua
+Core/Config.lua
 Compat/WoW335.lua
 Locales/enUS.lua
 Locales/ruRU.lua

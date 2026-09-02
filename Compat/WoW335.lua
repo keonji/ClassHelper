@@ -1,7 +1,3 @@
--- Compat/WoW335.lua: the only module allowed to encode WoW 3.3.5a (build 12340)
--- client API signatures. Task 2 adds locale detection; later milestones add item,
--- talent, tooltip, timing, and modified-click adapters here.
-
 local addonName, ns = ...
 
 local Compat = {}
@@ -9,7 +5,33 @@ ns.Compat = Compat
 
 function Compat:GetLocale()
     if GetLocale then
-        return GetLocale()
+        local locale = GetLocale()
+        if locale and locale ~= "" then return locale end
     end
     return "enUS"
+end
+
+function Compat:GetUnitClassToken(unit)
+    if UnitClass then
+        local _, english = UnitClass(unit or "player")
+        return english
+    end
+end
+
+function Compat:GetTalentTreePoints()
+    local points = {}
+    if not GetNumTalentTabs then return points end
+    for tab = 1, GetNumTalentTabs(false, false) do
+        local _, _, _, spent = GetTalentTabInfo(tab, false, false, GetActiveTalentGroup())
+        points[tab] = spent or 0
+    end
+    return points
+end
+
+function Compat:GetSpellInfo(spellID)
+    if not GetSpellInfo then return end
+    local name, icon, level = GetSpellInfo(spellID)
+    if name then
+        return { name = name, icon = icon, level = level }
+    end
 end
