@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: ClassHelper
+## Notes: In-game PvE class guide for AzerothCore-style progressive realms.
+## Author: ClassHelper
+## SavedVariables: ClassHelperDB
+
+Core/Bootstrap.lua
