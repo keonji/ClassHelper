@@ -5,3 +5,12 @@
 ## SavedVariables: ClassHelperDB
 
 Core/Bootstrap.lua
+Core/Registry.lua
+Compat/WoW335.lua
+Locales/enUS.lua
+Locales/ruRU.lua
+Data/Classes.lua
+Data/Races.lua
+Data/Progression.lua
+Data/Races/Human.lua
+Data/Specs/Paladin/Retribution/Shared.lua
