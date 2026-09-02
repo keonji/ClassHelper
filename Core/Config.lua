@@ -9,6 +9,8 @@ local DEFAULTS = {
     enableItemTooltips = true,
     enableCooldownText = true,
     showRacialSuggestions = true,
+    startHidden = true,
+    windowPosition = "CENTER:0:0",
 }
 
 local function buildDatabase(saved)

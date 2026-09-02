@@ -51,3 +51,33 @@ function Compat:QueryItem(itemID)
     end
     return false
 end
+
+function Compat:GetTime()
+    if GetTime then return GetTime() end
+    return 0
+end
+
+function Compat:CreateFrame(objectType, name, parent)
+    if not CreateFrame then return nil end
+    return CreateFrame(objectType, name, parent)
+end
+
+function Compat:CreateTexture(parent, layer)
+    if parent and parent.CreateTexture then
+        return parent:CreateTexture(nil, layer or "OVERLAY")
+    end
+end
+
+function Compat:CreateFontString(parent, fontObject)
+    if parent and parent.CreateFontString then
+        return parent:CreateFontString(nil, "OVERLAY", fontObject or "GameFontHighlight")
+    end
+end
+
+function Compat:AddEscapeFrame(name)
+    if not UISpecialFrames then return end
+    for index = 1, #UISpecialFrames do
+        if UISpecialFrames[index] == name then return end
+    end
+    table.insert(UISpecialFrames, name)
+end
