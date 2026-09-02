@@ -37,6 +37,7 @@ function ViewController.New(itemResolver)
         local view = {
             generation = generation,
             ownerToken = "view:" .. generation,
+            controller = controller,
             context = copyContext(context),
         }
         self.view = view

@@ -81,3 +81,9 @@ function Compat:AddEscapeFrame(name)
     end
     table.insert(UISpecialFrames, name)
 end
+
+function Compat:HandleModifiedItemClick(link)
+    if HandleModifiedItemClick then
+        return HandleModifiedItemClick(link)
+    end
+end

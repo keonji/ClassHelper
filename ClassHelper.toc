@@ -22,4 +22,6 @@ Data/Specs/Paladin/Retribution/Wrath.lua
 UI/ViewController.lua
 UI/Theme.lua
 UI/Widgets.lua
+UI/ItemRow.lua
+UI/Sections/Gear.lua
 UI/MainWindow.lua

@@ -11,6 +11,10 @@ local ruRU = {
     ITEM_STATE_LOADING = "Загрузка",
     ITEM_STATE_FAILED = "Данные недоступны или время ожидания истекло",
 
+    BATCH_PROGRESS = "Загружено %d / %d",
+    BATCH_PROGRESS_FAILED = "Загружено %d / %d, с ошибкой %d",
+    BATCH_TOO_LARGE = "Слишком много предметов; запросите их по одному",
+
     TAB_GUIDE = "Руководство",
     TAB_ENCHANTMENTS = "Чары и камни",
     TAB_CONSUMABLES = "Расходники",

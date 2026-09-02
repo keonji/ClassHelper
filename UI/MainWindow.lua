@@ -58,6 +58,10 @@ function MainWindow:Create()
     self.portrait = widgets.Portrait(frame)
     self.scrollHost = widgets.ScrollHost(frame)
     self.statusStrip = widgets.StatusStrip(frame)
+    self.statusText = self.statusStrip
+    self.contentHost = self.scrollHost
+
+    self:BuildRuntime(frame)
 
     self.tabs = {}
     for index = 1, #TABS do
@@ -77,6 +81,30 @@ function MainWindow:Create()
     return self
 end
 
+function MainWindow:BuildRuntime(frame)
+    local compat = ns.Compat
+
+    local queue = ns.RequestQueue.New({
+        now = function() return compat:GetTime() end,
+        onError = function(message)
+            if print then print("ClassHelper queue error: " .. tostring(message)) end
+        end,
+    })
+    self.queue = queue
+    ns.RuntimeQueue = queue
+
+    local resolver = ns.ItemResolver.New(compat, queue)
+    self.resolver = resolver
+    ns.ItemResolverInstance = resolver
+
+    local controller = ns.ViewController.New(resolver)
+    self.viewController = controller
+
+    frame:SetScript("OnUpdate", function(_, elapsed)
+        queue:Update(elapsed)
+    end)
+end
+
 function MainWindow:RestorePosition()
     local raw = ns.Config:Get("windowPosition")
     local point, x, y = string.match(raw or "", "^([%w_]+):([%-]?[%d.]+):([%-]?[%d.]+)$")
@@ -89,34 +117,41 @@ function MainWindow:RestorePosition()
     end
 end
 
-function MainWindow:Refresh()
-    if self.statusStrip then
-        self.statusStrip:SetText("Ready")
-    end
-end
-
 function MainWindow:SelectTab(key)
+    local known = false
     for index = 1, #TABS do
         if TABS[index].key == key then
-            self.selectedTab = key
-            self:Refresh()
-            return true
+            known = true
+            break
         end
     end
-    return false
+    if not known then return false end
+
+    self.selectedTab = key
+
+    local view = self.viewController:Begin({ tabKey = key })
+    self.currentView = view
+
+    if key == "gear" then
+        ns.GearSection:Render(self, view)
+    end
+
+    return true
 end
 
 function MainWindow:Show()
     if not self.frame then self:Create() end
     if self.frame then
         self.frame:Show()
-        self:Refresh()
     end
 end
 
 function MainWindow:Hide()
     if self.frame then
         self.frame:Hide()
+    end
+    if self.viewController then
+        self.viewController:Close()
     end
 end
 

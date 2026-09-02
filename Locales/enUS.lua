@@ -15,6 +15,10 @@ local enUS = {
     ITEM_STATE_LOADING = "Loading",
     ITEM_STATE_FAILED = "Data unavailable or request timed out",
 
+    BATCH_PROGRESS = "Loaded %d / %d",
+    BATCH_PROGRESS_FAILED = "Loaded %d / %d, failed %d",
+    BATCH_TOO_LARGE = "Too many items; request them individually",
+
     TAB_GUIDE = "Guide",
     TAB_ENCHANTMENTS = "Enchants & Gems",
     TAB_CONSUMABLES = "Consumables",
