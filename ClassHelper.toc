@@ -18,3 +18,5 @@ Data/Races.lua
 Data/Progression.lua
 Data/Races/Human.lua
 Data/Specs/Paladin/Retribution/Shared.lua
+Data/Specs/Paladin/Retribution/Wrath.lua
+UI/ViewController.lua
