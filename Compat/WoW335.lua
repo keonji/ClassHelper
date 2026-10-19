@@ -37,9 +37,9 @@ end
 
 function Compat:GetSpellInfo(spellID)
     if not GetSpellInfo then return end
-    local name, icon, level = GetSpellInfo(spellID)
+    local name, rank, icon = GetSpellInfo(spellID)
     if name then
-        return { name = name, icon = icon, level = level }
+        return { name = name, rank = rank, icon = icon }
     end
 end
 
@@ -48,6 +48,12 @@ function Compat:GetItemInfo(itemID)
     local name, link, quality, itemLevel, minLevel, itemType, itemSubType, stackCount, equipLocation, texture = GetItemInfo(itemID)
     if not name then return end
     return name, link, quality, itemLevel, minLevel, itemType, itemSubType, stackCount, equipLocation, texture
+end
+
+function Compat:GetItemStats(link)
+    if not GetItemStats or not link then return nil end
+    local ok, stats = pcall(GetItemStats, link)
+    if ok and type(stats) == "table" then return stats end
 end
 
 function Compat:QueryItem(itemID)
@@ -73,6 +79,14 @@ end
 function Compat:CreateFrame(objectType, name, parent, template)
     if not CreateFrame then return nil end
     return CreateFrame(objectType, name, parent, template)
+end
+
+function Compat:SetPortraitToTexture(texture, path)
+    if SetPortraitToTexture then
+        SetPortraitToTexture(texture, path)
+    else
+        texture:SetTexture(path)
+    end
 end
 
 function Compat:CreateTexture(parent, layer)

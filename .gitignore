@@ -7,3 +7,9 @@
 Tests/
 knowledge_base/
 docs/
+.claude
+.playwright-cli
+.runtime
+.superpowers
+AGENTS.md
+TASK.md

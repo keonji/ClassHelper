@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClassHelper Preview</title>
+<link rel="icon" href="data:,">
+<style>
+@font-face{font-family:Friz;src:url(/art/fonts/frizqt__.ttf)}
+@font-face{font-family:ArialN;src:url(/art/fonts/arialn.ttf)}
+*{box-sizing:border-box}
+body{margin:0;background:#0b0e14;color:#c0c9d6;font:13px system-ui,sans-serif}
+header{display:flex;gap:10px;align-items:center;padding:12px 20px;background:#151b24;border-bottom:1px solid #2a3240;flex-wrap:wrap}
+header strong{color:#ffd100;font-family:Friz,serif}
+select,button,label{background:#222b38;color:#e6ebf2;border:1px solid #3c4a60;border-radius:4px;padding:6px 10px;font:inherit}
+button{cursor:pointer}
+#status{color:#7e8c9e}
+#stage{position:relative;width:1100px;height:760px;margin:16px auto;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 40%,#2a3445 0%,#121722 60%,#080a0f 100%)}
+.n{position:absolute}
+.frame.click{cursor:pointer}
+.hl{display:none}
+.frame:hover>.hl{display:block}
+.tex{background-repeat:no-repeat;isolation:isolate}
+.tint{position:absolute;inset:0;mix-blend-mode:multiply;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.font{font-family:Friz,serif;text-shadow:1px 1px 0 #000;display:flex;flex-direction:column;justify-content:center;pointer-events:none;line-height:1.2;white-space:pre-wrap}
+.font.one{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.scroll{overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#5d4a20 transparent}
+#error{color:#ff8a8a;white-space:pre-wrap;max-width:1100px;margin:0 auto}
+footer{max-width:1100px;margin:0 auto 24px;color:#7e8c9e;line-height:1.6}
+</style>
+<header>
+  <strong>ClassHelper</strong>
+  <select id="locale"><option>ruRU</option><option>enUS</option></select>
+  <label><input type="checkbox" id="loaded" checked> Предметы в кэше</label>
+  <button id="undo">← Отменить клик</button>
+  <button id="reset">Сначала</button>
+  <span id="status"></span>
+</header>
+<div id="stage"></div>
+<div id="error"></div>
+<footer>Окно строится исполнением настоящего ClassHelper.toc в WowStub; текстуры, иконки и шрифты извлечены из клиента 3.3.5a
+в .runtime/wow-art-png. Клики передаются в Lua и воспроизводятся заново. Подсветка — при наведении. Итоговая проверка всё равно в игре.</footer>
+<script>
+const $ = id => document.getElementById(id);
+const STRATA = { BACKGROUND: 0, LOW: 1, MEDIUM: 2, HIGH: 3, DIALOG: 4, FULLSCREEN: 5, FULLSCREEN_DIALOG: 6, TOOLTIP: 7 };
+const LAYER = { BACKGROUND: 1, BORDER: 2, ARTWORK: 3, OVERLAY: 4, HIGHLIGHT: 5 };
+const GOLD = [1, 0.82, 0], WHITE = [1, 1, 1], GRAY = [0.5, 0.5, 0.5];
+const FONTS = {
+  GameFontNormal: [12, GOLD], GameFontNormalSmall: [10, GOLD], GameFontNormalLarge: [16, GOLD], GameFontNormalHuge: [20, GOLD],
+  GameFontHighlight: [12, WHITE], GameFontHighlightSmall: [10, WHITE], GameFontHighlightLarge: [16, WHITE],
+  GameFontDisable: [12, GRAY], GameFontDisableSmall: [10, GRAY], NumberFontNormal: [14, WHITE, 'ArialN'],
+};
+const state = JSON.parse(decodeURIComponent(location.hash.slice(1) || '%7B%7D'));
+state.clicks = state.clicks || []; state.locale = state.locale || 'ruRU'; state.loaded = state.loaded ?? true;
+$('locale').value = state.locale; $('loaded').checked = state.loaded;
+const rgba = (c, a) => c ? `rgba(${Math.round(c[0] * 255)},${Math.round(c[1] * 255)},${Math.round(c[2] * 255)},${a ?? c[3] ?? 1})` : '';
+const isWhite = c => !c || (c[0] >= 0.99 && c[1] >= 0.99 && c[2] >= 0.99);
+const art = p => `url("/art/${p.replace(/\\/g, '/').toLowerCase()}.png")`;
+const solid = p => /white8x8$/i.test(p || '');
+const hFrac = p => p.includes('LEFT') ? 0 : p.includes('RIGHT') ? 1 : 0.5;
+const vFrac = p => p.includes('TOP') ? 0 : p.includes('BOTTOM') ? 1 : 0.5;
+const measure = document.createElement('canvas').getContext('2d');
+
+function fontInfo(n) {
+  const base = FONTS[n.fontObject] || [12, WHITE];
+  return { size: n.fontSize || base[0], color: n.textColor || base[1], family: base[2] || 'Friz' };
+}
+
+function layout(nodes) {
+  const root = { left: 0, top: 0, width: 1100, height: 760 };
+  const rects = new Map();
+  const rect = id => {
+    if (id === 0 || id === undefined || id === null) return root;
+    if (rects.has(id)) return rects.get(id);
+    rects.set(id, root);
+    const n = nodes[id - 1];
+    const parent = n.parent ? rect(n.parent) : root;
+    let w = n.width, h = n.height;
+    if (n.kind === 'Font') {
+      const f = fontInfo(n);
+      measure.font = `${f.size}px ${f.family}`;
+      const text = (n.text || '').replace(/\|c[0-9a-fA-F]{8}|\|r/g, '');
+      w = w || Math.ceil(measure.measureText(text).width) + 2;
+      const lines = text.split('\n').reduce((sum, line) => sum + Math.max(1, Math.ceil(measure.measureText(line).width / Math.max(1, w))), 0);
+      h = h || Math.ceil(lines * f.size * 1.2);
+    }
+    const c = {};
+    const anchors = n.anchors.length ? n.anchors : [{ point: 'TOPLEFT', relativePoint: 'TOPLEFT', x: 0, y: 0, relativeTo: n.parent || 0 }];
+    for (const a of anchors) {
+      const r = a.relativeTo === -1 ? parent : rect(a.relativeTo);
+      const x = r.left + r.width * hFrac(a.relativePoint) + a.x;
+      const y = r.top + r.height * vFrac(a.relativePoint) - a.y;
+      const hp = a.point.includes('LEFT') ? 'l' : a.point.includes('RIGHT') ? 'r' : 'cx';
+      const vp = a.point.includes('TOP') ? 't' : a.point.includes('BOTTOM') ? 'b' : 'cy';
+      c[hp] = x; c[vp] = y;
+    }
+    if (c.l !== undefined && c.r !== undefined) w = c.r - c.l;
+    if (c.t !== undefined && c.b !== undefined) h = c.b - c.t;
+    w = w || 0; h = h || 0;
+    const left = c.l ?? (c.r !== undefined ? c.r - w : c.cx - w / 2);
+    const top = c.t ?? (c.b !== undefined ? c.b - h : c.cy - h / 2);
+    const result = { left, top, width: w, height: h };
+    rects.set(id, result);
+    return result;
+  };
+  nodes.forEach(n => rect(n.id));
+  return rects;
+}
+
+function coords(el, n, r) {
+  const t = n.texCoord;
+  if (!t || t.length < 4) { el.style.backgroundSize = el.style.webkitMaskSize = '100% 100%'; return; }
+  const [l, rr, top, b] = t, W = r.width / Math.max(0.0001, rr - l), H = r.height / Math.max(0.0001, b - top);
+  for (const prop of ['backgroundSize', 'webkitMaskSize', 'maskSize']) el.style[prop] = `${W}px ${H}px`;
+  for (const prop of ['backgroundPosition', 'webkitMaskPosition', 'maskPosition']) el.style[prop] = `${-l * W}px ${-top * H}px`;
+}
+
+function drawTexture(el, n, r) {
+  el.classList.add('tex');
+  const vc = n.vertexColor;
+  if (n.color) { el.style.background = rgba(n.color); return; }
+  if (solid(n.texture)) {
+    if (n.gradient) {
+      const g = n.gradient;
+      el.style.background = `linear-gradient(${g[0] === 'HORIZONTAL' ? 'to right' : 'to top'},${rgba(g.slice(1, 4), g[4])},${rgba(g.slice(5, 8), g[8])})`;
+    } else el.style.background = rgba(vc || WHITE);
+    return;
+  }
+  if (!n.texture) return;
+  el.style.backgroundImage = art(n.texture);
+  coords(el, n, r);
+  if (!isWhite(vc)) {
+    const tint = document.createElement('div');
+    tint.className = 'tint';
+    tint.style.background = rgba(vc, 1);
+    tint.style.webkitMaskImage = tint.style.maskImage = art(n.texture);
+    coords(tint, n, r);
+    el.append(tint);
+  }
+  if (n.portrait) el.style.borderRadius = '50%';
+  if (n.desaturated) el.style.filter = 'grayscale(1)';
+  if (n.blend === 'ADD') el.style.mixBlendMode = 'plus-lighter';
+}
+
+function drawBackdrop(el, n, r) {
+  const b = n.backdrop, ins = b.insets || {};
+  const bg = document.createElement('div');
+  bg.className = 'n';
+  Object.assign(bg.style, { left: (ins.left || 0) + 'px', top: (ins.top || 0) + 'px', right: (ins.right || 0) + 'px', bottom: (ins.bottom || 0) + 'px', zIndex: 0 });
+  if (solid(b.bgFile) || !b.bgFile) bg.style.background = rgba(n.backdropColor || [0, 0, 0, 1]);
+  else {
+    bg.style.backgroundImage = art(b.bgFile);
+    bg.style.backgroundSize = b.tile ? `${b.tileSize}px ${b.tileSize}px` : '100% 100%';
+    bg.style.backgroundRepeat = b.tile ? 'repeat' : 'no-repeat';
+    if (n.backdropColor && n.backdropColor[3] !== undefined) bg.style.opacity = n.backdropColor[3];
+  }
+  el.append(bg);
+  const e = b.edgeSize || 0;
+  if (!b.edgeFile || !e) return;
+  if (solid(b.edgeFile)) { el.style.outline = `${e}px solid ${rgba(n.backdropBorderColor || WHITE)}`; el.style.outlineOffset = `-${e}px`; return; }
+  const strip = art(b.edgeFile), W = r.width, H = r.height;
+  const piece = (i, left, top, w, h, repeat, rotate) => {
+    const d = document.createElement('div');
+    d.className = 'n';
+    const inner = rotate ? document.createElement('div') : d;
+    Object.assign(d.style, { left: left + 'px', top: top + 'px', width: w + 'px', height: h + 'px', zIndex: 1, overflow: 'hidden' });
+    if (rotate) {
+      Object.assign(inner.style, { position: 'absolute', left: 0, top: 0, width: h + 'px', height: w + 'px', transformOrigin: '0 0', transform: `translate(${w}px,0) rotate(90deg)` });
+      d.append(inner);
+    }
+    Object.assign(inner.style, { backgroundImage: strip, backgroundSize: `${8 * e}px ${e}px`, backgroundPosition: `${-i * e}px 0`, backgroundRepeat: repeat ? 'repeat-y' : 'no-repeat' });
+    el.append(d);
+  };
+  piece(0, 0, e, e, H - 2 * e, true);
+  piece(1, W - e, e, e, H - 2 * e, true);
+  piece(2, e, 0, W - 2 * e, e, true, true);
+  piece(3, e, H - e, W - 2 * e, e, true, true);
+  piece(4, 0, 0, e, e);
+  piece(5, W - e, 0, e, e);
+  piece(6, 0, H - e, e, e);
+  piece(7, W - e, H - e, e, e);
+}
+
+function richText(el, text) {
+  const parts = text.split(/(\|c[0-9a-fA-F]{8}|\|r)/);
+  let span = null;
+  for (const part of parts) {
+    if (/^\|c/.test(part)) { span = document.createElement('span'); span.style.color = '#' + part.slice(4); el.append(span); }
+    else if (part === '|r') span = null;
+    else if (part) (span || el).append(part);
+  }
+}
+
+function render(data) {
+  const nodes = data.nodes, rects = layout(nodes), stage = $('stage');
+  stage.replaceChildren();
+  const elements = new Map();
+  const strataOf = new Map();
+  const scrolls = [];
+  for (const n of nodes) {
+    const r = rects.get(n.id);
+    const parentStrata = n.parent ? strataOf.get(n.parent) : 4;
+    const strata = n.strata ? STRATA[n.strata] : parentStrata;
+    strataOf.set(n.id, strata);
+    const detached = !n.parent || strata > parentStrata;
+    const host = detached ? stage : elements.get(n.parent).el;
+    const origin = detached ? { left: 0, top: 0 } : elements.get(n.parent).rect;
+    const el = document.createElement('div');
+    el.className = 'n';
+    Object.assign(el.style, { left: (r.left - origin.left) + 'px', top: (r.top - origin.top) + 'px', width: r.width + 'px', height: r.height + 'px' });
+    if (n.kind === 'Texture') {
+      el.style.zIndex = LAYER[n.layer] || 3;
+      if (n.layer === 'HIGHLIGHT') el.classList.add('hl');
+      drawTexture(el, n, r);
+    } else if (n.kind === 'Font') {
+      el.style.zIndex = 6;
+      const f = fontInfo(n);
+      el.classList.add('font');
+      if (n.height && n.height < f.size * 2.2) el.classList.add('one');
+      Object.assign(el.style, { fontSize: f.size + 'px', color: rgba(f.color), fontFamily: f.family === 'ArialN' ? 'ArialN,sans-serif' : 'Friz,serif',
+        textAlign: (n.justifyH || 'CENTER').toLowerCase(), lineHeight: n.height && n.height < f.size * 2.2 ? n.height + 'px' : '1.2' });
+      richText(el, n.text || '');
+    } else {
+      el.classList.add('frame');
+      el.style.zIndex = detached ? 100 + strata * 100 : 10;
+      if (n.backdrop) drawBackdrop(el, n, r);
+      if (n.kind === 'ScrollFrame') { el.classList.add('scroll'); scrolls.push([el, n.scroll || 0]); }
+      if (n.clickable) {
+        el.classList.add('click');
+        el.addEventListener('click', event => { event.stopPropagation(); state.clicks.push(n.id); load(); });
+      }
+    }
+    if (n.alpha !== undefined && n.alpha !== null && n.kind !== 'Frame') el.style.opacity = n.alpha;
+    host.append(el);
+    elements.set(n.id, { el, rect: r });
+  }
+  for (const [el, top] of scrolls) el.scrollTop = top;
+  $('status').textContent = `${nodes.length} объектов · запросов предметов: ${data.itemQueries} · кликов: ${state.clicks.length}`;
+}
+
+async function load() {
+  location.hash = encodeURIComponent(JSON.stringify(state));
+  try {
+    const q = new URLSearchParams({ locale: state.locale, loaded: state.loaded ? '1' : '0', clicks: state.clicks.join(',') });
+    const selected = new URLSearchParams(location.search);
+    for (const key of ['profile', 'stage', 'tab']) if (selected.has(key)) q.set(key, selected.get(key));
+    const response = await fetch('/snapshot?' + q);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    render(data);
+    $('error').textContent = '';
+  } catch (error) { $('error').textContent = error.message; }
+}
+$('locale').onchange = () => { state.locale = $('locale').value; state.clicks = []; load(); };
+$('loaded').onchange = () => { state.loaded = $('loaded').checked; load(); };
+$('undo').onclick = () => { state.clicks.pop(); load(); };
+$('reset').onclick = () => { state.clicks = []; load(); };
+load();
+</script>
+</html>

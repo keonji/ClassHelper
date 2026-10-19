@@ -14,7 +14,7 @@ function SpellResolver:Resolve(spellID)
             spellID = spellID,
             name = info.name,
             icon = info.icon,
-            level = info.level,
+            rank = info.rank,
             known = true,
         }
     else

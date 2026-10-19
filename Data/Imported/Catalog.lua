@@ -1,0 +1,53 @@
+local _, ns = ...
+
+ns.BISCatalog = {
+    races = {
+        HUMAN = { id = 1, faction = "ALLIANCE", classes = "WARRIOR PALADIN ROGUE PRIEST MAGE WARLOCK DEATHKNIGHT" },
+        ORC = { id = 2, faction = "HORDE", classes = "WARRIOR HUNTER ROGUE SHAMAN WARLOCK DEATHKNIGHT" },
+        DWARF = { id = 3, faction = "ALLIANCE", classes = "WARRIOR PALADIN HUNTER ROGUE PRIEST DEATHKNIGHT" },
+        NIGHTELF = { id = 4, faction = "ALLIANCE", classes = "WARRIOR HUNTER ROGUE PRIEST DRUID DEATHKNIGHT" },
+        UNDEAD = { id = 5, faction = "HORDE", classes = "WARRIOR ROGUE PRIEST MAGE WARLOCK DEATHKNIGHT" },
+        TAUREN = { id = 6, faction = "HORDE", classes = "WARRIOR HUNTER SHAMAN DRUID DEATHKNIGHT" },
+        GNOME = { id = 7, faction = "ALLIANCE", classes = "WARRIOR ROGUE MAGE WARLOCK DEATHKNIGHT" },
+        TROLL = { id = 8, faction = "HORDE", classes = "WARRIOR HUNTER ROGUE PRIEST SHAMAN MAGE DEATHKNIGHT" },
+        BLOODELF = { id = 10, faction = "HORDE", classes = "PALADIN HUNTER ROGUE PRIEST MAGE WARLOCK DEATHKNIGHT" },
+        DRAENEI = { id = 11, faction = "ALLIANCE", classes = "WARRIOR PALADIN HUNTER PRIEST SHAMAN MAGE DEATHKNIGHT" },
+    },
+    raceOrder = { "HUMAN", "DWARF", "NIGHTELF", "GNOME", "DRAENEI", "ORC", "TAUREN", "TROLL", "UNDEAD", "BLOODELF" },
+    classOrder = { "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "DRUID" },
+    classIDs = { WARRIOR = 1, PALADIN = 2, HUNTER = 3, ROGUE = 4, PRIEST = 5, DEATHKNIGHT = 6, SHAMAN = 7, MAGE = 8, WARLOCK = 9, DRUID = 11 },
+    icons = { WARRIOR = "Warrior", PALADIN = "Paladin", HUNTER = "Hunter", ROGUE = "Rogue", PRIEST = "Priest",
+        DEATHKNIGHT = "DeathKnight", SHAMAN = "Shaman", MAGE = "Mage", WARLOCK = "Warlock", DRUID = "Druid" },
+    slotOrder = { HEAD = 1, NECK = 2, SHOULDER = 3, CLOAK = 4, CHEST = 5, WRIST = 6, HANDS = 7,
+        WAIST = 8, LEGS = 9, FEET = 10, FINGER = 11, TRINKET = 12, ONEHANDED = 13, TWOHANDED = 14, OFFHAND = 15, RANGED = 16, RELIC = 17, BAG = 18, SHIRT = 19 },
+    classicSpecs = {
+        WARRIOR = { Fury = 1, Protection = 3 },
+        PALADIN = { Holy = 1, Protection = 2, Retribution = 3 },
+        HUNTER = { ["Beast mastery"] = 1, Marksmanship = 1, Survival = 1 },
+        ROGUE = { Combat = 1, Assassination = 2 },
+        PRIEST = { Discipline = 1, Holy = 1, Shadow = 2 },
+        SHAMAN = { Restoration = 1, Enhancement = 2 },
+        MAGE = { Arcane = 1, Fire = 1, Frost = 1 },
+        WARLOCK = { Affliction = 1, Demonology = 1, Destruction = 1 },
+        DRUID = { Balance = 6, ["Feral tank"] = 1, ["Feral dps"] = 4, Restoration = 5 },
+    },
+    classicUnavailablePhases = { WARRIOR = { p5 = true, p6 = true } },
+    classicReferenceRaces = {
+        DRAENEI = { WARRIOR = "DWARF", PALADIN = "HUMAN", HUNTER = "DWARF", PRIEST = "DWARF", MAGE = "GNOME", SHAMAN = "TROLL" },
+        BLOODELF = { PALADIN = "HUMAN", HUNTER = "ORC", ROGUE = "UNDEAD", PRIEST = "UNDEAD", MAGE = "UNDEAD", WARLOCK = "UNDEAD" },
+    },
+    tbcSpecs = { ["Beast mastery"] = "Beast Mastery", ["Feral tank"] = "Feral - Tank", ["Feral dps"] = "Feral - DPS" },
+    sources = {
+        classic = { name = "BestInSlotClassic", revision = "302ab4ecca0c86b43441710dab840af5edd3ca3e", url = "https://github.com/Warkdev/BestInSlotClassic" },
+        tbc = { name = "TBC BiS Tracker", revision = "ebb38d1dd723ff1796c3d3c01d7d832438ad762a", url = "https://github.com/mazarelo/tbc-bis-tracker" },
+        wrath = { name = "BiSTooltip / WoWSimsBP", revision = "07c1321bfd07428168630aaf07389c2263e8f9a8", url = "https://github.com/Xidiuss/Bistooltip" },
+    },
+    phases = {
+        classic = { { "pr", "BIS_PHASE_PRE_RAID", 1 }, { "p1", "BIS_PHASE_MC_ONYXIA", 1 }, { "p2", "BIS_PHASE_DIRE_MAUL", 2 },
+            { "p3", "STAGE_CLASSIC_BWL", 3 }, { "p4", "STAGE_CLASSIC_ZG", 4 }, { "p5", "BIS_PHASE_AHNQIRAJ", 5 }, { "p6", "BIS_PHASE_NAXX40", 6 } },
+        tbc = { { "prebis", "BIS_PHASE_PRE_RAID" }, { "phase1", "BIS_PHASE_KARAZHAN_GRUUL" }, { "phase2", "BIS_PHASE_SSC_TK" },
+            { "phase3", "BIS_PHASE_BT_HYJAL" }, { "phase4", "STAGE_TBC_ZULAMAN" }, { "phase5", "STAGE_TBC_SUNWELL" } },
+        wrath = { { "PR", "BIS_PHASE_PRE_RAID" }, { "T7", "STAGE_WRATH_TIER_7" }, { "T8", "STAGE_WRATH_ULDUAR" },
+            { "T9", "STAGE_WRATH_CRUSADERS_COLISEUM" }, { "T10", "STAGE_WRATH_ICECROWN" }, { "RS", "STAGE_WRATH_RUBY_SANCTUM" } },
+    },
+}

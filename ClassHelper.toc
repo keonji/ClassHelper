@@ -1,30 +1,55 @@
 ## Interface: 30300
 ## Title: ClassHelper
-## Notes: In-game PvE class guide for AzerothCore-style progressive realms.
-## Author: ClassHelper
-## SavedVariables: ClassHelperDB
+## Notes: Equipment, talent builds and glyph recommendations for WoW 3.3.5a PvE/PvP.
+## Author: keonji
+## Version: 1.0.0
+## SavedVariables: ClassHelperDB, ClassHelperDiagnostics
 
-Core/Bootstrap.lua
-Core/Registry.lua
-Core/Events.lua
-Core/Config.lua
-Compat/WoW335.lua
-Services/RequestQueue.lua
-Services/ItemResolver.lua
-Services/PlayerContext.lua
-Services/SpellResolver.lua
-Locales/enUS.lua
-Locales/ruRU.lua
-Data/Classes.lua
-Data/Races.lua
-Data/Progression.lua
-Data/Races/Human.lua
-Data/Specs/Paladin/Retribution/Shared.lua
-Data/Specs/Paladin/Retribution/Wrath.lua
-UI/ViewController.lua
-UI/Theme.lua
-UI/Widgets.lua
-UI/ItemRow.lua
-UI/Sections/Gear.lua
-UI/MainWindow.lua
-Core/Lifecycle.lua
+Core\Bootstrap.lua
+Core\Registry.lua
+Core\Events.lua
+Core\Config.lua
+Compat\WoW335.lua
+Services\RequestQueue.lua
+Services\ItemResolver.lua
+Services\PlayerContext.lua
+Services\SpellResolver.lua
+Services\GuideService.lua
+Locales\enUS.lua
+Locales\ruRU.lua
+Locales\Imported.lua
+Data\Classes.lua
+Data\Races.lua
+Data\Progression.lua
+Data\Races\Human.lua
+Data\Imported\classic.lua
+Data\Imported\tbc.lua
+Data\Imported\wrath.lua
+Data\Imported\Eligibility.lua
+Data\Imported\Catalog.lua
+Data\ItemWeights.lua
+Data\Imported\PvP.lua
+Data\Imported\ClassGuides.lua
+Services\ClassGuides.lua
+Services\ImportedBIS.lua
+Services\ImportedPvP.lua
+Services\GearAdvisor.lua
+UI\ViewController.lua
+UI\Theme.lua
+UI\Art.lua
+UI\Widgets.lua
+UI\ItemRow.lua
+UI\ItemCell.lua
+UI\GearSection.lua
+UI\GuideSection.lua
+UI\ClassGuideSection.lua
+UI\TalentSection.lua
+UI\GlyphSection.lua
+UI\RotationSection.lua
+UI\ProfilePicker.lua
+UI\MainWindow.lua
+UI\MinimapButton.lua
+UI\Options.lua
+Services\Diagnostics.lua
+Core\Lifecycle.lua
+UI\Slash.lua
